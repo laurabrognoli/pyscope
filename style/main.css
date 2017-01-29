@@ -1,0 +1,86 @@
+div.main-container {
+	max-width: 850px;
+	min-width: 700px;
+	width: 80%;
+	margin: 10px auto;
+}
+
+canvas.screen-canvas {
+	width: 100%;
+	height: 20%; /* cambiata via js */
+}
+
+div.buttons-container {
+	border: 1px solid black;
+	border-radius: 2px;
+	min-height: 100%;
+	padding: 5px;
+}
+
+div#channel-toggles {
+	display: flex;
+	justify-content: space-around;
+}
+
+div.container-interruttori {
+	margin-top: 7px;
+	position: relative;
+	padding-right: 0px;
+}
+
+div.container-interruttori > button {
+	width: 100%;
+	display: block;
+	float: right;
+}
+
+.btn:focus,.btn:active:focus,.btn.active:focus,
+.btn.focus,.btn:active.focus,.btn.active.focus {
+    outline: none;
+}
+
+div.prototipo-pannello {
+	display: none;
+}
+
+div#mega-contenitore {
+	width: 100%;
+	margin-left: 0;
+}
+
+div#mega-contenitore > div {
+	height: 100%;
+	padding: 0;
+}
+
+@media (min-device-width: 320px) and (max-device-width: 736px) and (orientation: landscape) {
+	div.main-container {
+		min-width: 100%;
+	}
+}
+
+#overlay-container {
+	opacity: 0;
+	color: white;
+	position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(70, 70, 70, .9);
+    z-index: 1;
+    transition: opacity 0.5s ease-out;
+    padding-top: 240px;
+    text-align: center;
+}
+
+.blur {
+	transition: 0.2s filter ease-out;
+}
+
+.blur.active {
+	position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+	filter: blur(20px);
+}

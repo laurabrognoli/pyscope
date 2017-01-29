@@ -1,0 +1,6 @@
+- simulare dati in ingresso
+- gestire plot dati in ingresso
+- provare FFT
+- implentare FFT
+- gestire plot FFT
+- implementare menu FFT
