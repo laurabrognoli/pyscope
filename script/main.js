@@ -67,13 +67,14 @@ function get_first_enabled_channel() {
 }
 
 function open_connecting_overlay() {
+	$('body').prepend('<div id="overlay-container"><h1>Connecting...</h1></div>');
 	$('#overlay-container').css('opacity', 1);
 	$('.blur').addClass('active');
 }
 
 function remove_overlay() {
 	$('.blur').removeClass('active');
-	$('#overlay-container').css('opacity', 0);
+	$('#overlay-container').css('opacity', 0).remove();
 }
 
 function clear_canvas() {
