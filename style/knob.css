@@ -1,0 +1,7 @@
+knob {
+	width: 64px;
+	height: 64px;
+	background: url('/image/knob.png');
+	display: inline-block;
+	background-position-y: 0;
+}

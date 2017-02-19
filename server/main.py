@@ -34,7 +34,7 @@ def new_thread():
 
         sio.emit('data', {
                 'fft': state['fft'],
-                'sig': [1 for i in range(128)],
+                'sig': [1] * 128,
                 'channel_id': '2',
                 'step_x': 1,
                 'step_y': 1

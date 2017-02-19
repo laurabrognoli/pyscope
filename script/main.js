@@ -103,7 +103,22 @@ socket.on('disconnect', function () {
 	open_connecting_overlay();
 })
 
-var scaleFactor = 10; // TODO
+var scaleFactors = {
+	'1': 0.1,
+	'2': 0.1
+};
+
+$('knob#ch1_scale')
+	.knob(1, 9)
+	.on('change', function (ev, new_val) {
+		scaleFactors['1'] = new_val / 10;
+	});
+
+$('knob#ch2_scale')
+	.knob(1, 9)
+	.on('change', function (ev, new_val) {
+		scaleFactors['2'] = new_val / 10;
+	});
 
 socket.on('data', function (object) {
 	var channel_id = object.channel_id;
@@ -112,7 +127,7 @@ socket.on('data', function (object) {
 	var sig = object.sig;
 
 	sig = $.map(sig, function (el) {
-		return 1.0 * el / scaleFactor;
+		return 1.0 * el * scaleFactors[channel_id];
 	});
 
 	var fft = object.fft;
