@@ -24,7 +24,7 @@
 				<div id="channel-toggles">
 					<input type="checkbox" data-toggle="toggle" channel-id="1" data-on="CH1" data-off="CH1" data-onstyle="success">
 					<input type="checkbox" data-toggle="toggle" channel-id="2" data-on="CH2" data-off="CH2" data-onstyle="info">
-					<!-- <input type="checkbox" data-toggle="toggle" channel-id="3" data-on="CH3" data-off="CH3" data-onstyle="warning"> -->
+					<input id="stop_toggle" type="checkbox" data-toggle="toggle" data-onstyle="danger">
 				</div>
 
 				<div id="mega-contenitore" class="row">
@@ -39,18 +39,18 @@
 						<button class="btn btn-default" id="time-button" type="button" apri-pannello="time">TIME</button>
 						<button class="btn btn-default" id="fft-button" type="button" apri-pannello="fft">FFT</button>
 						<button class="btn btn-default" id="meas-button" type="button" apri-pannello="meas">Meas</button>
-						<button class="btn btn-default" id="qam-button" type="button" apri-pannello="qam">QAM</button>
+						<!-- <button class="btn btn-default" id="qam-button" type="button" apri-pannello="qam">QAM</button> -->
 					</div>
 				</div>
 			</div>
 		</div>
 
 		<div id="meas" class="prototipo-pannello">
-			PROTOTIPO 1
+			Pannello misure
 		</div>
 
 		<div id="fft" class="prototipo-pannello">
-			PROTOTIPO 2
+			Pannello FFT
 		</div>
 	</div>
 
@@ -61,6 +61,7 @@
 	<script src="script/touchable.js"></script>
   	<script src="script/knob.js"></script>
 
+	<script src="script/canvas.js"></script>
   	<script src="script/main.js"></script>
 </body>
 </html>

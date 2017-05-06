@@ -304,7 +304,7 @@
 			
 		}
 
-		this.logging=false; //set to false to disabele logging gets overwritten by conf see below
+		this.logging=false; //set to false to disable logging gets overwritten by conf see below
 		this.elem=elem;
 		this.$elem=$(elem);
 		this.is_doubleTap=false;

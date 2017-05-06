@@ -6,6 +6,14 @@ import time
 import math
 from multiprocessing import Process
 import numpy as np
+import Adafruit_GPIO.SPI as SPI
+import Adafruit_MCP3008
+
+CLK  = 18
+MISO = 22
+MOSI = 24
+CS   = 25
+mcp = Adafruit_MCP3008.MCP3008(clk=CLK, cs=CS, miso=MISO, mosi=MOSI)
 
 eventlet.monkey_patch()
 
@@ -14,36 +22,53 @@ app = Flask(__name__)
 
 state = {'fft': False}
 
-def new_thread():
-    sig = np.array([math.sin(2*6.28*10*i) for i in range(4096)])
-    i = 0
+def reader_thread():
+    ch1_sig = [0] * 256
+    ch2_sig = [0] * 256
+
+    last_send = 0.0
+
     while True:
-        if not state['fft']:
-            a = sig[i%4096:(i+256)%4096]
-        else:
-            m = (np.fft.fft(sig)).real
-            a = (2.0/256 * np.abs(m[:128]))
+        for i in range(1, 256):
+            ch1_sig[i - 1] = ch1_sig[i]
+            ch2_sig[i - 1] = ch2_sig[i]
 
-        sio.emit('data', {
-                'channel_id': '1',
-                'fft': state['fft'],
-                'sig': a.tolist(),
-                'step_x': 1,
-                'step_y': 1
-            }, room='ch_1')
+        # (/ 512.0 - 1) se input range [-5; +5], se [0; +5] allora (/1024.0)
+        ch1_sig[255] = mcp.read_adc(0) / 512.0 - 1.0
+        ch2_sig[255] = mcp.read_adc(1) / 512.0 - 1.0
 
-        sio.emit('data', {
-                'fft': state['fft'],
-                'sig': [1] * 128,
-                'channel_id': '2',
-                'step_x': 1,
-                'step_y': 1
-            }, room='ch_2')
+        ch1_fft_sig = []
+        ch2_fft_sig = []
 
-        i = (i+1)%4096
-        time.sleep(0.3)
+        if state['fft']:
+            ch1_fft_tmp = (np.fft.fft(ch1_sig)).real
+            ch2_fft_tmp = (np.fft.fft(ch2_sig)).real
+            
+            ch1_fft_sig = (2.0/256 * np.abs(ch1_fft_tmp[:128])).tolist()
+            ch2_fft_sig = (2.0/256 * np.abs(ch2_fft_tmp[:128])).tolist()
 
-eventlet.spawn(new_thread)
+        if time.time() - last_send > 0.3:
+            sio.emit('data', {
+                    'channel_id': '1',
+                    'fft': state['fft'],
+                    'sig': ch1_fft_sig if state['fft'] else ch1_sig,
+                    'step_x': 1,
+                    'step_y': 1
+                }, room='ch_1')
+
+            sio.emit('data', {
+                    'fft': state['fft'],
+                    'sig': ch2_fft_sig if state['fft'] else ch2_sig,
+                    'channel_id': '2',
+                    'step_x': 1,
+                    'step_y': 1
+                }, room='ch_2')
+
+            last_send = time.time()
+
+        time.sleep(0.0001)
+
+eventlet.spawn(reader_thread)
 
 @app.route('/')
 def index():
@@ -86,4 +111,4 @@ if __name__ == '__main__':
     app = socketio.Middleware(sio, app)
 
     # deploy as an eventlet WSGI server
-    eventlet.wsgi.server(eventlet.listen(('localhost', 8001)), app)
+    eventlet.wsgi.server(eventlet.listen(('0.0.0.0', 8001)), app)

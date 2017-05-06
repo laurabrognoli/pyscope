@@ -2,7 +2,8 @@
 
 open_connecting_overlay();
 
-var socket = io('localhost:8001');
+var socket = io('192.168.1.68:8001');
+//var socket = io('192.168.1.113:8001');
 
 var canvas_container = $('#canvas-container');
 var canvas = $('canvas.screen-canvas');
@@ -13,6 +14,8 @@ var canvas_context = document.getElementsByClassName('screen-canvas')[0].getCont
 var canvas_dimensions = [];
 
 var active_channels = {};
+
+var stop_drawing = false;
 
 function resize_canvas() {
 	var width = canvas.width();
@@ -80,6 +83,8 @@ function remove_overlay() {
 function clear_canvas() {
 	canvas_context.fillStyle = '#000';
 	canvas_context.fillRect(0, 0, canvas.width(), canvas.height());
+
+	draw_grid(canvas, canvas_context);
 }
 
 socket.on('connect', function () {
@@ -111,16 +116,20 @@ var scaleFactors = {
 $('knob#ch1_scale')
 	.knob(1, 9)
 	.on('change', function (ev, new_val) {
-		scaleFactors['1'] = new_val / 10;
+		scaleFactors['1'] = new_val / 5;
 	});
 
 $('knob#ch2_scale')
 	.knob(1, 9)
 	.on('change', function (ev, new_val) {
-		scaleFactors['2'] = new_val / 10;
+		scaleFactors['2'] = new_val / 5;
 	});
 
 socket.on('data', function (object) {
+	if (stop_drawing) {
+		return;
+	}
+
 	var channel_id = object.channel_id;
 
 	if (channel_id == get_first_enabled_channel()) clear_canvas();
@@ -134,8 +143,11 @@ socket.on('data', function (object) {
 
 	var x_step = (canvas.width() - 4) / (sig.length - 1);
 	var height_2 = canvas.height() / 2;
-	
+
 	canvas_context.beginPath();
+	canvas_context.lineWidth = 1.8;
+	canvas_context.strokeStyle = channel_colours[channel_id];
+
 	if (!fft) { //tempo
 		canvas_context.moveTo(2, height_2 + sig[0] * -(height_2 - 4));
 		for (var i = 1; i < sig.length; i++) {
@@ -143,16 +155,25 @@ socket.on('data', function (object) {
 		}
 	}
 	else { //frequenza
-		canvas_context.moveTo(5, height_2*2 + sig[0] * -(height_2*2));
+		canvas_context.moveTo(5, height_2 + sig[0] * -(height_2));
 		for (var i = 1; i < sig.length; i++) {
-			canvas_context.lineTo(5 + i * x_step, height_2*2 + sig[i] * -(height_2*2));
+			canvas_context.lineTo(5 + i * x_step, height_2 + sig[i] * -(height_2));
 		}
 	}
-	canvas_context.strokeStyle = channel_colours[channel_id];
+	
 	canvas_context.stroke();
 });
 
+$('#stop_toggle').change(function (evt) {
+	var enable = evt.currentTarget.checked;
+	stop_drawing = enable;
+});
+
 $('#channel-toggles > input').change(function (evt) {
+	if (evt.currentTarget.id == 'stop_toggle') {
+		return;
+	}
+
 	var enable = evt.currentTarget.checked;
 	var currentTarget = $(evt.currentTarget);
 	var ch_id = currentTarget.attr('channel-id');
