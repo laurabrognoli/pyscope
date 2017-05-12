@@ -2,7 +2,7 @@
 
 open_connecting_overlay();
 
-var socket = io('192.168.1.68:8001');
+var socket = io('localhost:8001');
 //var socket = io('192.168.1.113:8001');
 
 var canvas_container = $('#canvas-container');
@@ -31,6 +31,7 @@ function resize_canvas() {
 
 	canvas_context.fillStyle = '#000';
 	canvas_context.fillRect(0, 0, width, height);
+	draw_grid(canvas, canvas_context);
 }
 
 var pulsanti_laterali = $('div.container-interruttori > button');

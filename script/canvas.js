@@ -60,7 +60,7 @@ function draw_grid(canvas, ctx) {
 	ctx.lineWidth = 1;
 	// (horiz_num - 1) / 2
 	for (var i = 0; i <= Math.floor(GRID_HORIZONTAL_NUM / 2); i++) {
-		// linea sopra e sotto specwwchiate (+- offset)
+		// linea sopra e sotto specchiate (+- offset)
 		var offset = pixel_num * i;
 
 		ctx.beginPath();
