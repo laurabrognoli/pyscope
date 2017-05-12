@@ -14,12 +14,14 @@ var canvas_context = document.getElementsByClassName('screen-canvas')[0].getCont
 var canvas_dimensions = [];
 
 var active_channels = {};
+var active_measures = [];
+var measureIndex = 0;
 
 var stop_drawing = false;
 
 function resize_canvas() {
 	var width = canvas.width();
-	var height = Math.round(width * 4/5);
+	var height = Math.round(width * 4.0/5.0);
 	canvas_context = null;
 	canvas.remove();
 
@@ -164,6 +166,23 @@ $('button.sweep').click(function (evt) {
 	verticalSweep[channel] += sweepAmount;
 });
 
+$('button.measure-enable').click(function (evt) {
+	var target = $(evt.currentTarget);
+
+	var channel = $('input[name=measure-channel]:checked').val();
+	var type = target.attr('measure-type');
+
+	var measureObject = {
+		channel: channel,
+		measure: new Measure(type)
+	};
+
+	active_measures[measureIndex] = measureObject;
+	measureIndex = (measureIndex + 1) % 3;
+
+	console.log(active_measures);
+});
+
 socket.on('data', function (object) {
 	if (stop_drawing) {
 		return;
@@ -176,6 +195,12 @@ socket.on('data', function (object) {
 
 	sig = $.map(sig, function (val) {
 		return (1.0 * val + verticalSweep[channel_id]) * scaleFactors[channel_id];
+	});
+
+	active_measures.forEach(function (measureObject) {
+		if (channel_id != measureObject.channel) return;
+
+		measureObject.measure.newSet(sig);
 	});
 
 	var fft = object.fft;

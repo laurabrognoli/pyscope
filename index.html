@@ -31,7 +31,14 @@
 					<div class="col-xs-10">
 						<div id="pannello">
 							<div id="meas" class="prototipo-pannello">
-								Pannello misure
+								<h5>Channel</h5>
+								<input type="radio" name="measure-channel" value="1" checked> 1 <br>
+								<input type="radio" name="measure-channel" value="2"> 2 <br>
+							
+								<h5>Type</h5>
+								<button class="measure-enable" measure-type="vmax">Vmax</button>
+								<button class="measure-enable" measure-type="vmin">Vmin</button>
+								<button class="measure-enable" measure-type="vpp">Vpp</button>
 							</div>
 
 							<div id="default" class="prototipo-pannello">
@@ -73,5 +80,6 @@
 
 	<script src="script/canvas.js"></script>
   	<script src="script/main.js"></script>
+  	<script src="script/measure.js"></script>
 </body>
 </html>
