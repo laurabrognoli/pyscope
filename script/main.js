@@ -34,17 +34,47 @@ function resize_canvas() {
 	draw_grid(canvas, canvas_context);
 }
 
+$('knob#ch1_scale')
+	.knob(1, 9)
+	.on('change', function (ev, new_val) {
+		scaleFactors['1'] = new_val / 5;
+	});
+
+$('knob#ch2_scale')
+	.knob(1, 9)
+	.on('change', function (ev, new_val) {
+		scaleFactors['2'] = new_val / 5;
+	});
+
 var pulsanti_laterali = $('div.container-interruttori > button');
+var prototipiPannelli = $('.prototipo-pannello');
+
+$('.prototipo-pannello#default').show();
 
 pulsanti_laterali.click(function (event) {
-	console.log(pulsanti_laterali);
-	pulsanti_laterali.removeClass('active');
-	var bottone = $(event.currentTarget);
-	console.log(bottone);
-	bottone.addClass('active');
-	var id_pannello = bottone.attr('apri-pannello'); // TODO: aggiungere controlli
-	var nuovo_pannello = $('#' + id_pannello);
-	pannello.html(nuovo_pannello.html());
+	var target = $(event.currentTarget);
+	var excludedButtonsIds = [];
+	if (target.attr('excludes')) 
+		excludedButtonsIds = target.attr('excludes').split(',');
+
+	excludedButtonsIds.forEach(function (id) {
+		$('#' + id).removeClass('active');
+	});
+
+	var id_pannello = target.attr('apri-pannello'); // TODO: aggiungere controlli	
+	if (!id_pannello) {
+		target.addClass('active');
+		return;
+	}
+
+	prototipiPannelli.hide();
+	if (target.hasClass('active')) {
+		target.removeClass('active');
+		$('.prototipo-pannello#default').show();
+	} else {
+		target.addClass('active');
+		$('#' + id_pannello).show();
+	}
 });
 
 $(document).ready(function () {
@@ -58,8 +88,7 @@ $(window).resize(function () {
 
 var channel_colours = {
 	'1': '#449D44',
-	'2': '#31B0D5',
-	'3': '#EC971F'
+	'2': '#31B0D5'
 };
 
 function get_first_enabled_channel() {
@@ -98,7 +127,7 @@ socket.on('state', function (state_object) {
 	if (state_object.fft) {
 		$('#time-button').removeClass('active');
 		$('#fft-button').addClass('active');	
-	} else if (!($('#qam-button').hasClass('active') || $('#meas-button').hasClass('active'))) {
+	} else {
 		$('#fft-button').removeClass('active');
 		$('#time-button').addClass('active');	
 	}
@@ -114,17 +143,26 @@ var scaleFactors = {
 	'2': 0.1
 };
 
-$('knob#ch1_scale')
-	.knob(1, 9)
-	.on('change', function (ev, new_val) {
-		scaleFactors['1'] = new_val / 5;
-	});
+var verticalSweep = {
+	'1': 0,
+	'2': 0
+}
+// costante per calibrare lo step di sweep verticale
+var verticalSweepK = 0.12;
 
-$('knob#ch2_scale')
-	.knob(1, 9)
-	.on('change', function (ev, new_val) {
-		scaleFactors['2'] = new_val / 5;
-	});
+$('button.sweep').click(function (evt) {
+	var target = $(evt.currentTarget);
+	var channel = target.attr('channel-id');
+
+	if (target.hasClass('reset')) {
+		verticalSweep[channel] = 0;
+		return;
+	}
+
+	var multiplier = target.hasClass('plus') ? +1.0 : -1.0;
+	var sweepAmount = 1.0 / scaleFactors[channel] * multiplier * verticalSweepK;
+	verticalSweep[channel] += sweepAmount;
+});
 
 socket.on('data', function (object) {
 	if (stop_drawing) {
@@ -136,8 +174,8 @@ socket.on('data', function (object) {
 	if (channel_id == get_first_enabled_channel()) clear_canvas();
 	var sig = object.sig;
 
-	sig = $.map(sig, function (el) {
-		return 1.0 * el * scaleFactors[channel_id];
+	sig = $.map(sig, function (val) {
+		return (1.0 * val + verticalSweep[channel_id]) * scaleFactors[channel_id];
 	});
 
 	var fft = object.fft;
@@ -194,12 +232,11 @@ $('#channel-toggles > input').change(function (evt) {
 	socket.emit((enable ? 'enable' : 'disable') + '_channel', {channel_id: ch_id});
 });
 
-$('#mega-contenitore button').click(function (evt) {
-	var currentTarget = $(evt.currentTarget);
-	if (currentTarget.attr('id') == 'fft-button') {
-		socket.emit('enable_fft');
-	}
-	else {
-		socket.emit('disable_fft')
-	}
+$('#time-button').click(function () {
+	socket.emit('disable_fft');
+});
+
+
+$('#fft-button').click(function () {
+	socket.emit('enable_fft');
 });
