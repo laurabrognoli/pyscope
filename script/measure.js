@@ -12,6 +12,7 @@ function Measure (type) {
 		data.forEach(function (val) {
 			if (val > _self.vmax) _self.vmax = val;
 		});
+		console.log(val);
 	};
 
 	callbacksNewSet['vmin'] = function (data) {
@@ -20,6 +21,7 @@ function Measure (type) {
 		data.forEach(function (val) {
 			if (val < _self.vmin) _self.vmin = val;
 		});
+		console.log(val);
 	};
 
 	callbacksNewSet['vpp'] = function (data) {
@@ -27,6 +29,7 @@ function Measure (type) {
 		callbacksNewSet['vmin'](data);
 
 		_self.vpp = _self.vmax - _self.vmin;
+		console.log(val);
 	};
 
 	// ----------- get value -----------
@@ -51,7 +54,7 @@ function Measure (type) {
 
 	this.newSet = callbacksNewSet[type];
 	this.getValue = callbacksGetValue[type];
-	this.getFormattedString = callbacksFormattedString[type];
+	this.getFormattedString	 = callbacksFormattedString[type];
 
 	return this;
 }
