@@ -3,27 +3,29 @@ document.body.addEventListener('touchmove', function(event) { // prevents scroll
 }, false); 
 
 (function( $ ) {
-    $.fn.knob = function(min, max) {
+    $.fn.knob = function(min, max, default_val, invert) {
         this.filter("knob").each(function() {
         	var knob = $(this);
         	var num_sprites = 100;
 
-        	value = parseInt(knob.attr('value')) || min;
+            // todo: sistemare sprite iniziale se invertito
         	function setValue(val) {
         		if (val < min) val = min;
         		else if (val > max) val = max;
 
-        		knob.attr('value', val);
+        		knob.attr('value', val); 
         		value = val;
 
         		var percentage = (value - min) / (max - min);
         		var image_index = Math.floor(percentage * num_sprites);
 
-        		knob.css('background-position-y', (-64 * image_index) + 'px');
-                $(knob).trigger('change', [value]);
-        	}
+                if (invert)
+                    val = (1.0 - percentage) * (max - min) + min;
 
-        	setValue(value); // aggiorno in caso non sia gia' settato
+        		knob.css('background-position-y', (-64 * image_index) + 'px');
+                $(knob).trigger('change', [val]);
+        	}
+            setValue(default_val || min);
 
         	knob.Touchable();
         	knob.bind('touchablemove', function (event, touchable) {

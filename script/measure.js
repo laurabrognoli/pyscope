@@ -12,7 +12,6 @@ function Measure (type) {
 		data.forEach(function (val) {
 			if (val > _self.vmax) _self.vmax = val;
 		});
-		console.log(val);
 	};
 
 	callbacksNewSet['vmin'] = function (data) {
@@ -21,7 +20,6 @@ function Measure (type) {
 		data.forEach(function (val) {
 			if (val < _self.vmin) _self.vmin = val;
 		});
-		console.log(val);
 	};
 
 	callbacksNewSet['vpp'] = function (data) {
@@ -29,7 +27,6 @@ function Measure (type) {
 		callbacksNewSet['vmin'](data);
 
 		_self.vpp = _self.vmax - _self.vmin;
-		console.log(val);
 	};
 
 	// ----------- get value -----------
@@ -42,9 +39,9 @@ function Measure (type) {
 	// ---------- formatted string ---------
 
 	var callbacksFormattedString = {};
-	callbacksFormattedString['vmax'] = function () {return _self.vmax.toFixed(3) + ' V'};
-	callbacksFormattedString['vmin'] = function () {return _self.vmin.toFixed(3) + ' V'};
-	callbacksFormattedString['vpp'] = function () {return _self.vpp.toFixed(3) + ' V'};
+	callbacksFormattedString['vmax'] = function () {return type.toUpperCase() + ' ' + _self.vmax.toFixed(2) + ' V'};
+	callbacksFormattedString['vmin'] = function () {return type.toUpperCase() + ' ' + _self.vmin.toFixed(2) + ' V'};
+	callbacksFormattedString['vpp'] = function () {return type.toUpperCase() + ' ' + _self.vpp.toFixed(2) + ' V'};
 
 	type = type.toLowerCase();
 
@@ -54,7 +51,7 @@ function Measure (type) {
 
 	this.newSet = callbacksNewSet[type];
 	this.getValue = callbacksGetValue[type];
-	this.getFormattedString	 = callbacksFormattedString[type];
+	this.getFormattedString = callbacksFormattedString[type];
 
 	return this;
 }

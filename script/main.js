@@ -35,17 +35,17 @@ function resize_canvas() {
 	canvas_context.fillRect(0, 0, width, height);
 	draw_grid(canvas, canvas_context);
 }
-
+// 0.5 -> 5. default = 2
 $('knob#ch1_scale')
-	.knob(1, 9)
+	.knob(0.5, 5, 2, true)
 	.on('change', function (ev, new_val) {
-		scaleFactors['1'] = new_val / 5;
+		voltsPerDiv['1'] = new_val;
 	});
 
 $('knob#ch2_scale')
-	.knob(1, 9)
+	.knob(0.5, 5, 2, true)
 	.on('change', function (ev, new_val) {
-		scaleFactors['2'] = new_val / 5;
+		voltsPerDiv['2'] = new_val;
 	});
 
 var pulsanti_laterali = $('div.container-interruttori > button');
@@ -89,7 +89,7 @@ $(window).resize(function () {
 });
 
 var channel_colours = {
-	'1': '#449D44',
+	'1': '#5cb85c',
 	'2': '#31B0D5'
 };
 
@@ -117,6 +117,20 @@ function clear_canvas() {
 	canvas_context.fillRect(0, 0, canvas.width(), canvas.height());
 
 	draw_grid(canvas, canvas_context);
+	canvas_context.fillStyle = "#004066";
+	canvas_context.fillRect(
+		0,
+		0,
+		canvas.width(),
+		31
+		);
+
+	canvas_context.fillRect(
+		0,
+		canvas.height() - 31,
+		canvas.width(),
+		canvas.height()
+		);
 }
 
 socket.on('connect', function () {
@@ -140,9 +154,9 @@ socket.on('disconnect', function () {
 	open_connecting_overlay();
 })
 
-var scaleFactors = {
-	'1': 0.1,
-	'2': 0.1
+var voltsPerDiv = {
+	'1': 2,
+	'2': 2
 };
 
 var verticalSweep = {
@@ -150,7 +164,8 @@ var verticalSweep = {
 	'2': 0
 }
 // costante per calibrare lo step di sweep verticale
-var verticalSweepK = 0.12;
+var verticalSweepK = 0.012;
+var voltsPerDivK = 0.28;
 
 $('button.sweep').click(function (evt) {
 	var target = $(evt.currentTarget);
@@ -162,7 +177,7 @@ $('button.sweep').click(function (evt) {
 	}
 
 	var multiplier = target.hasClass('plus') ? +1.0 : -1.0;
-	var sweepAmount = 1.0 / scaleFactors[channel] * multiplier * verticalSweepK;
+	var sweepAmount = verticalSweepK * voltsPerDiv[channel] * multiplier;
 	verticalSweep[channel] += sweepAmount;
 });
 
@@ -179,8 +194,6 @@ $('button.measure-enable').click(function (evt) {
 
 	active_measures[measureIndex] = measureObject;
 	measureIndex = (measureIndex + 1) % 3;
-
-	console.log(active_measures);
 });
 
 socket.on('data', function (object) {
@@ -193,14 +206,33 @@ socket.on('data', function (object) {
 	if (channel_id == get_first_enabled_channel()) clear_canvas();
 	var sig = object.sig;
 
-	sig = $.map(sig, function (val) {
-		return (1.0 * val + verticalSweep[channel_id]) * scaleFactors[channel_id];
-	});
+	var div_coord = {
+		1: 0.17,
+		2: 0.67
+	};
 
-	active_measures.forEach(function (measureObject) {
+	canvas_context.fillStyle = channel_colours[channel_id];
+	canvas_context.font = 'bold 15px monospace';
+	canvas_context.fillText(
+		voltsPerDiv[channel_id].toFixed(1) + ' V/div', 
+		div_coord[channel_id] * canvas.width(), 
+		22);
+
+	var measure_coord = [0.05, 0.37, 0.7];
+
+	active_measures.forEach(function (measureObject, index) {
 		if (channel_id != measureObject.channel) return;
 
 		measureObject.measure.newSet(sig);
+
+		canvas_context.fillText(
+			measureObject.measure.getFormattedString(), 
+			measure_coord[index] * canvas.width(), 
+			canvas.height() - 10);
+	});
+	
+	sig = $.map(sig, function (val) {
+		return (voltsPerDivK * val + verticalSweep[channel_id]) / voltsPerDiv[channel_id];
 	});
 
 	var fft = object.fft;

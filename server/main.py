@@ -33,9 +33,10 @@ def reader_thread():
             ch1_sig[i - 1] = ch1_sig[i]
             ch2_sig[i - 1] = ch2_sig[i]
 
-        # (/ 512.0 - 1) se input range [-5; +5], se [0; +5] allora (/1024.0)
-        ch1_sig[255] = mcp.read_adc(0) / 512.0 - 1.0
-        ch2_sig[255] = mcp.read_adc(1) / 512.0 - 1.0
+        # (/ 512.0 - 1) se input range [-5; +5], se [0; +5] allora (/ 1024.0)
+        # input range [0; +5], quindi n / 1024.0 * 5
+        ch1_sig[255] = mcp.read_adc(0) / 1024.0 * 5
+        ch2_sig[255] = mcp.read_adc(1) / 1024.0 * 5
 
         ch1_fft_sig = []
         ch2_fft_sig = []
