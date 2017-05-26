@@ -84,3 +84,15 @@ div#mega-contenitore > div {
     height: 100%;
 	filter: blur(20px);
 }
+
+#pannello {
+	padding: 5px;
+}
+
+button.sweep {
+	display: block;
+}
+
+.sweep-container {
+	display: inline-block;
+}

@@ -29,28 +29,45 @@
 
 				<div id="mega-contenitore" class="row">
 					<div class="col-xs-10">
-						<div id="pannello"></div>
-						<div id="controlli">
-							<knob id="ch1_scale"></knob>
-							<knob id="ch2_scale"></knob>
+						<div id="pannello">
+							<div id="meas" class="prototipo-pannello">
+								<h5>Channel</h5>
+								<input type="radio" name="measure-channel" value="1" checked> 1 <br>
+								<input type="radio" name="measure-channel" value="2"> 2 <br>
+							
+								<h5>Type</h5>
+								<button class="measure-enable" measure-type="vmax">Vmax</button>
+								<button class="measure-enable" measure-type="vmin">Vmin</button>
+								<button class="measure-enable" measure-type="vpp">Vpp</button>
+							</div>
+
+							<div id="default" class="prototipo-pannello">
+								<knob id="ch1_scale"></knob>
+								<knob id="ch2_scale"></knob>
+
+								<!-- ch1 sweep -->
+								<div class="sweep-container">
+									<button class="sweep plus" channel-id="1">&and;</button>
+									<button class="sweep minus" channel-id="1">&or;</button>
+									<button class="sweep reset" channel-id="1">X</button>
+								</div>
+
+								<!-- ch2 sweep -->
+								<div class="sweep-container">
+									<button class="sweep plus" channel-id="2">&and;</button>
+									<button class="sweep minus" channel-id="2">&or;</button>
+									<button class="sweep reset" channel-id="2">X</button>
+								</div>
+							</div>
 						</div>
 					</div>
 					<div class="col-xs-2 container-interruttori">
-						<button class="btn btn-default" id="time-button" type="button" apri-pannello="time">TIME</button>
-						<button class="btn btn-default" id="fft-button" type="button" apri-pannello="fft">FFT</button>
+						<button class="btn btn-default" excludes="fft-button" id="time-button" type="button">TIME</button>
+						<button class="btn btn-default" excludes="time-button" id="fft-button" type="button">FFT</button>
 						<button class="btn btn-default" id="meas-button" type="button" apri-pannello="meas">Meas</button>
-						<!-- <button class="btn btn-default" id="qam-button" type="button" apri-pannello="qam">QAM</button> -->
 					</div>
 				</div>
 			</div>
-		</div>
-
-		<div id="meas" class="prototipo-pannello">
-			Pannello misure
-		</div>
-
-		<div id="fft" class="prototipo-pannello">
-			Pannello FFT
 		</div>
 	</div>
 
@@ -63,5 +80,6 @@
 
 	<script src="script/canvas.js"></script>
   	<script src="script/main.js"></script>
+  	<script src="script/measure.js"></script>
 </body>
 </html>
