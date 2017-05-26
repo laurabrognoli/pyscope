@@ -7,8 +7,8 @@ document.body.addEventListener('touchmove', function(event) { // prevents scroll
         this.filter("knob").each(function() {
         	var knob = $(this);
         	var num_sprites = 100;
+            var initRun = true;
 
-            // todo: sistemare sprite iniziale se invertito
         	function setValue(val) {
         		if (val < min) val = min;
         		else if (val > max) val = max;
@@ -17,6 +17,11 @@ document.body.addEventListener('touchmove', function(event) { // prevents scroll
         		value = val;
 
         		var percentage = (value - min) / (max - min);
+                if (initRun && invert) {
+                    percentage = 1.0 - percentage;
+                    initRun = false;
+                }
+
         		var image_index = Math.floor(percentage * num_sprites);
 
                 if (invert)
