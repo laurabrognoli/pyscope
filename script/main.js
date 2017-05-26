@@ -19,6 +19,16 @@ var measureIndex = 0;
 
 var stop_drawing = false;
 
+var voltsPerDiv = {
+	'1': 2,
+	'2': 2
+};
+
+var horizontalZoom = {
+	'1': 3,
+	'2': 3
+};
+
 function resize_canvas() {
 	var width = canvas.width();
 	var height = Math.round(width * 4.0/5.0);
@@ -35,6 +45,7 @@ function resize_canvas() {
 	canvas_context.fillRect(0, 0, width, height);
 	draw_grid(canvas, canvas_context);
 }
+
 // 0.5 -> 5. default = 2
 $('knob#ch1_scale')
 	.knob(0.5, 5, 2, true)
@@ -46,6 +57,19 @@ $('knob#ch2_scale')
 	.knob(0.5, 5, 2, true)
 	.on('change', function (ev, new_val) {
 		voltsPerDiv['2'] = new_val;
+	});
+
+// horizontal zoom scale
+$('knob#ch1_horiz_zoom')
+	.knob(1, 5, 2, false)
+	.on('change', function (ev, new_val) {
+		horizontalZoom['1'] = Math.round(new_val);
+	});
+
+$('knob#ch2_horiz_zoom')
+	.knob(1, 5, 2, false)
+	.on('change', function (ev, new_val) {
+		horizontalZoom['2'] = Math.round(new_val);
 	});
 
 var pulsanti_laterali = $('div.container-interruttori > button');
@@ -152,12 +176,7 @@ socket.on('state', function (state_object) {
 socket.on('disconnect', function () {
 	console.log('Disconnected');
 	open_connecting_overlay();
-})
-
-var voltsPerDiv = {
-	'1': 2,
-	'2': 2
-};
+});
 
 var verticalSweep = {
 	'1': 0,
@@ -196,6 +215,11 @@ $('button.measure-enable').click(function (evt) {
 	measureIndex = (measureIndex + 1) % 3;
 });
 
+var div_coord = {
+	1: 0.17,
+	2: 0.67
+};
+
 socket.on('data', function (object) {
 	if (stop_drawing) {
 		return;
@@ -205,11 +229,6 @@ socket.on('data', function (object) {
 
 	if (channel_id == get_first_enabled_channel()) clear_canvas();
 	var sig = object.sig;
-
-	var div_coord = {
-		1: 0.17,
-		2: 0.67
-	};
 
 	canvas_context.fillStyle = channel_colours[channel_id];
 	canvas_context.font = 'bold 15px monospace';
@@ -234,6 +253,13 @@ socket.on('data', function (object) {
 	sig = $.map(sig, function (val) {
 		return (voltsPerDivK * val + verticalSweep[channel_id]) / voltsPerDiv[channel_id];
 	});
+
+	var skip_step = horizontalZoom[channel_id];
+	if (skip_step > 1) {
+		for (var i = sig.length - 1; i >= 0; i -= skip_step) {
+			sig.splice(i, skip_step - 1);
+		}
+	}
 
 	var fft = object.fft;
 

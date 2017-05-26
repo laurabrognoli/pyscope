@@ -45,8 +45,8 @@ def reader_thread():
             ch1_fft_tmp = (np.fft.fft(ch1_sig)).real
             ch2_fft_tmp = (np.fft.fft(ch2_sig)).real
             
-            ch1_fft_sig = (2.0/256 * np.abs(ch1_fft_tmp[:128])).tolist()
-            ch2_fft_sig = (2.0/256 * np.abs(ch2_fft_tmp[:128])).tolist()
+            ch1_fft_sig = (1.0/256 * np.abs(ch1_fft_tmp[:128])).tolist()
+            ch2_fft_sig = (1.0/256 * np.abs(ch2_fft_tmp[:128])).tolist()
 
         if time.time() - last_send > 0.3:
             sio.emit('data', {
