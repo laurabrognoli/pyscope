@@ -1,3 +1,5 @@
+//per disegnare il reticolo  e le bande colorate sul canvas
+
 "use strict";
 
 var GRID_HORIZONTAL_NUM = 9;

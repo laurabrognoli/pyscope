@@ -1,3 +1,5 @@
+#server (gira sul Raspberry Pi)
+
 import socketio
 import eventlet
 import eventlet.wsgi
@@ -9,6 +11,7 @@ import numpy as np
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_MCP3008
 
+#inizializzazione dei pin utilizzati per la comunicazione RPi-ADC
 CLK  = 18
 MISO = 22
 MOSI = 24
@@ -22,32 +25,36 @@ app = Flask(__name__)
 
 state = {'fft': False}
 
+#thread che si occupa di elaborare e trasmettere il segnale
 def reader_thread():
-    ch1_sig = [0] * 256
-    ch2_sig = [0] * 256
+    #le istruzioni relative al secondo canale sono commentate e quindi non eseguite
+
+    ch1_sig = [0] * 512
+    #ch2_sig = [0] * 256
 
     last_send = 0.0
 
     while True:
-        for i in range(1, 256):
+        for i in range(1, 512):
             ch1_sig[i - 1] = ch1_sig[i]
-            ch2_sig[i - 1] = ch2_sig[i]
+            #ch2_sig[i - 1] = ch2_sig[i]
 
         # (/ 512.0 - 1) se input range [-5; +5], se [0; +5] allora (/ 1024.0)
         # input range [0; +5], quindi n / 1024.0 * 5
-        ch1_sig[255] = mcp.read_adc(0) / 1024.0 * 5
-        ch2_sig[255] = mcp.read_adc(1) / 1024.0 * 5
+        ch1_sig[511] = mcp.read_adc(0) / 1024.0 * 5
+        #ch2_sig[255] = mcp.read_adc(1) / 1024.0 * 5
 
         ch1_fft_sig = []
-        ch2_fft_sig = []
+        #ch2_fft_sig = []
 
         if state['fft']:
             ch1_fft_tmp = (np.fft.fft(ch1_sig)).real
-            ch2_fft_tmp = (np.fft.fft(ch2_sig)).real
+            #ch2_fft_tmp = (np.fft.fft(ch2_sig)).real
             
-            ch1_fft_sig = (1.0/256 * np.abs(ch1_fft_tmp[:128])).tolist()
-            ch2_fft_sig = (1.0/256 * np.abs(ch2_fft_tmp[:128])).tolist()
+            ch1_fft_sig = (1.0/512 * np.abs(ch1_fft_tmp[:256])).tolist()
+            #ch2_fft_sig = (1.0/256 * np.abs(ch2_fft_tmp[:128])).tolist()
 
+        #per evitare di sovraccaricare il client si aspetta del tempo prima di inviare nuovi dati
         if time.time() - last_send > 0.3:
             sio.emit('data', {
                     'channel_id': '1',
@@ -57,18 +64,19 @@ def reader_thread():
                     'step_y': 1
                 }, room='ch_1')
 
-            sio.emit('data', {
+            """sio.emit('data', {
                     'fft': state['fft'],
                     'sig': ch2_fft_sig if state['fft'] else ch2_sig,
                     'channel_id': '2',
                     'step_x': 1,
                     'step_y': 1
-                }, room='ch_2')
+                }, room='ch_2')"""
 
             last_send = time.time()
 
-        time.sleep(0.0001)
+        time.sleep(0.000000001)
 
+#main thread, gestisce le richieste
 eventlet.spawn(reader_thread)
 
 @app.route('/')
@@ -108,8 +116,7 @@ def disconnect(sid):
     print('disconnect ', sid)
 
 if __name__ == '__main__':
-    # wrap Flask application with engineio's middleware
     app = socketio.Middleware(sio, app)
 
-    # deploy as an eventlet WSGI server
-    eventlet.wsgi.server(eventlet.listen(('localhost', 8001)), app)
+    #specifica l'indirizzo IP della macchina su cui far girare il server (IP RPi)
+    eventlet.wsgi.server(eventlet.listen(('192.168.69.200', 8001)), app)

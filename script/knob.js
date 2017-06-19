@@ -1,4 +1,6 @@
-document.body.addEventListener('touchmove', function(event) { // prevents scrolling
+//libreria per gestire le knob
+
+document.body.addEventListener('touchmove', function(event) { 
   event.preventDefault();
 }, false); 
 

@@ -1,9 +1,11 @@
+//client (gira sul dispositivo dell'utente)
+
 'use strict';
 
 open_connecting_overlay();
 
-var socket = io('localhost:8001');
-//var socket = io('192.168.1.113:8001');
+//indirizzo ip del server con cui il client comunica
+var socket = io('192.168.69.200:8001');
 
 var canvas_container = $('#canvas-container');
 var canvas = $('canvas.screen-canvas');
@@ -29,6 +31,7 @@ var horizontalZoom = {
 	'2': 3
 };
 
+//eseguita ogni volta che il canvas viene ridimensionato (di fatto solo all'avvio)
 function resize_canvas() {
 	var width = canvas.width();
 	var height = Math.round(width * 4.0/5.0);
@@ -46,7 +49,8 @@ function resize_canvas() {
 	draw_grid(canvas, canvas_context);
 }
 
-// 0.5 -> 5. default = 2
+//vertical zoom
+//min = 0.5 V/div, max = 5 V/div, default = 2 V/div
 $('knob#ch1_scale')
 	.knob(0.5, 5, 2, true)
 	.on('change', function (ev, new_val) {
@@ -59,7 +63,8 @@ $('knob#ch2_scale')
 		voltsPerDiv['2'] = new_val;
 	});
 
-// horizontal zoom scale
+//horizontal zoom
+// min = 1, max = 5, default = 2
 $('knob#ch1_horiz_zoom')
 	.knob(1, 5, 2, false)
 	.on('change', function (ev, new_val) {
@@ -77,6 +82,7 @@ var prototipiPannelli = $('.prototipo-pannello');
 
 $('.prototipo-pannello#default').show();
 
+//gestisce i pulsanti laterali e ne regola lo stato (attivo/disattivo)
 pulsanti_laterali.click(function (event) {
 	var target = $(event.currentTarget);
 	var excludedButtonsIds = [];
@@ -87,7 +93,7 @@ pulsanti_laterali.click(function (event) {
 		$('#' + id).removeClass('active');
 	});
 
-	var id_pannello = target.attr('apri-pannello'); // TODO: aggiungere controlli	
+	var id_pannello = target.attr('apri-pannello');	
 	if (!id_pannello) {
 		target.addClass('active');
 		return;
@@ -104,7 +110,6 @@ pulsanti_laterali.click(function (event) {
 });
 
 $(document).ready(function () {
-	// TODO: togliere animazione di caricamento
 	resize_canvas();
 });
 
@@ -112,6 +117,7 @@ $(window).resize(function () {
 	resize_canvas();
 });
 
+//colore dei canali
 var channel_colours = {
 	'1': '#5cb85c',
 	'2': '#31B0D5'
@@ -125,6 +131,7 @@ function get_first_enabled_channel() {
 	return min;
 }
 
+//overlay prima che la connessione sia stata stabilita
 function open_connecting_overlay() {
 	$('body').prepend('<div id="overlay-container"><h1>Connecting...</h1></div>');
 	$('#overlay-container').css('opacity', 1);
@@ -136,6 +143,7 @@ function remove_overlay() {
 	$('#overlay-container').css('opacity', 0).remove();
 }
 
+//per resettare lo stato del canvas
 function clear_canvas() {
 	canvas_context.fillStyle = '#000';
 	canvas_context.fillRect(0, 0, canvas.width(), canvas.height());
@@ -163,7 +171,7 @@ socket.on('connect', function () {
 });
 
 socket.on('state', function (state_object) {
-	console.log('New state from server', state_object);
+	//console.log('New state from server', state_object);
 	if (state_object.fft) {
 		$('#time-button').removeClass('active');
 		$('#fft-button').addClass('active');	
@@ -178,6 +186,7 @@ socket.on('disconnect', function () {
 	open_connecting_overlay();
 });
 
+//sweep verticale, di default a zero
 var verticalSweep = {
 	'1': 0,
 	'2': 0
@@ -186,6 +195,7 @@ var verticalSweep = {
 var verticalSweepK = 0.012;
 var voltsPerDivK = 0.28;
 
+//gestisce lo sweep verticale
 $('button.sweep').click(function (evt) {
 	var target = $(evt.currentTarget);
 	var channel = target.attr('channel-id');
@@ -200,6 +210,7 @@ $('button.sweep').click(function (evt) {
 	verticalSweep[channel] += sweepAmount;
 });
 
+//gestisce le misure
 $('button.measure-enable').click(function (evt) {
 	var target = $(evt.currentTarget);
 
@@ -220,6 +231,7 @@ var div_coord = {
 	2: 0.67
 };
 
+//ogni volta che vengono ricevuti nuovi dati
 socket.on('data', function (object) {
 	if (stop_drawing) {
 		return;
@@ -267,7 +279,7 @@ socket.on('data', function (object) {
 	var height_2 = canvas.height() / 2;
 
 	canvas_context.beginPath();
-	canvas_context.lineWidth = 1.8;
+	canvas_context.lineWidth = 4;
 	canvas_context.strokeStyle = channel_colours[channel_id];
 
 	if (!fft) { //tempo
@@ -286,6 +298,7 @@ socket.on('data', function (object) {
 	canvas_context.stroke();
 });
 
+//pulsante di stop
 $('#stop_toggle').change(function (evt) {
 	var enable = evt.currentTarget.checked;
 	stop_drawing = enable;

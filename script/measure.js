@@ -1,3 +1,5 @@
+//per ricavare le misure di tensione
+
 function Measure (type) {
 	var supportedTypes = ['vpp', 'vmax', 'vmin'];
 
