@@ -7,11 +7,13 @@
 	<title>Oscilloscopio</title>
 	<meta name="description" content="Oscilloscopio">
 	<meta name="author" content="Laura Brognoli">
+	<meta name="mobile-web-app-capable" content="yes">
 
-	<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
-	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link rel="stylesheet" href="style/bootstrap.min.css">
+	<link rel="stylesheet" href="style/bootstrap-toggle.min.css">
 	<link rel="stylesheet" href="style/main.css">
-	<link rel="stylesheet" href="style/knob.css">
+	<link rel="stylesheet" href="style/knob.css"> 
+	<link rel="manifest" hfref="/manifest.json">
 </head>
 
 <body>
@@ -77,13 +79,12 @@
 		</div>
 	</div>
 
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.2/socket.io.min.js" type="text/javascript"></script>
+	<script src="script/jquery.min.js"></script>
+	<script src="script/bootstrap.min.js"></script>
+	<script src="script/bootstrap-toggle.min.js"></script>
+	<script src="script/socket.io.min.js"></script>
 	<script src="script/touchable.js"></script>
   	<script src="script/knob.js"></script>
-
 	<script src="script/canvas.js"></script>
   	<script src="script/main.js"></script>
   	<script src="script/measure.js"></script>

@@ -119,4 +119,4 @@ if __name__ == '__main__':
     app = socketio.Middleware(sio, app)
 
     #specifica l'indirizzo IP della macchina su cui far girare il server (IP RPi)
-    eventlet.wsgi.server(eventlet.listen(('192.168.69.200', 8001)), app)
+    eventlet.wsgi.server(eventlet.listen(('10.0.16.1', 8001)), app)

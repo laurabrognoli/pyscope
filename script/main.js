@@ -5,7 +5,7 @@
 open_connecting_overlay();
 
 //indirizzo ip del server con cui il client comunica
-var socket = io('192.168.69.200:8001');
+var socket = io('10.0.16.1:8001');
 
 var canvas_container = $('#canvas-container');
 var canvas = $('canvas.screen-canvas');

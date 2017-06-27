@@ -1,0 +1,10 @@
+{
+  "short_name": "Oscilloscope",
+  "name": "Portable Digital Oscilloscope",
+  
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "landscape"
+
+}
+
